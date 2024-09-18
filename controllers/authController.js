@@ -92,7 +92,7 @@ const protect = catchAsync(async (req, res, next) => {
 
   //3.Verify token
   const decode = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  console.log(decode.id);
+  // console.log(decode.id);
 
   //4. Check if user still exist
   const currentUser = await User.findById(decode.id);
@@ -115,7 +115,6 @@ const protect = catchAsync(async (req, res, next) => {
   //Grant
   req.user = currentUser;
   res.locals.user = currentUser;
-  console.log('1: ', res.locals.user);
   next();
 });
 
@@ -141,7 +140,6 @@ const isLoggedIn = async (req, res, next) => {
 
       // There is a logged user
       res.locals.user = currentUser;
-      console.log('2: ', res.locals.user);
 
       return next();
     } catch (error) {
@@ -153,7 +151,7 @@ const isLoggedIn = async (req, res, next) => {
 
 const restrictTo = (...roles) => {
   return (req, res, next) => {
-    console.log(req.user);
+    // console.log(req.user);
     if (!roles.includes(req.user.role)) {
       return next(
         new AppError(

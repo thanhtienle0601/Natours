@@ -150,10 +150,10 @@ tourSchema.pre(/^find/, function (next) {
   next();
 });
 
-tourSchema.pre(/^find/, function (next) {
-  console.log('Query took time: ', `${Date.now() - this.start} miliseconds`);
-  next();
-});
+// tourSchema.pre(/^find/, function (next) {
+//   console.log('Query took time: ', `${Date.now() - this.start} miliseconds`);
+//   next();
+// });
 
 tourSchema.pre(/^find/, function (next) {
   this.populate({
