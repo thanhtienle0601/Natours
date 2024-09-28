@@ -96,35 +96,6 @@ app.post(
   webHookCheckout,
 );
 
-// const endpointSecret = 'whsec_ZpJwvSruknjsUMCEtEaK7HWrii8cce4I';
-// app.post(
-//   '/webhook-checkout',
-//   express.raw({ type: 'application/json' }),
-//   (request, response) => {
-//     const sig = request.headers['stripe-signature'];
-
-//     let event;
-
-//     try {
-//       event = stripe.webhooks.constructEvent(
-//         request.body,
-//         sig,
-//         Buffer.from(endpointSecret),
-//       );
-//     } catch (err) {
-//       response.status(400).send(`Webhook Error: ${err.message}`);
-//     }
-
-//     // Handle the event
-//     if (event.type === 'checkout.session.completed') {
-//       console.log('success');
-//     }
-
-//     // Return a response to acknowledge receipt of the event
-//     response.json({ received: true });
-//   },
-// );
-
 // Body parser
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
