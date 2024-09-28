@@ -8,6 +8,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
+const bodyParser = require('body-parser');
 const compression = require('compression');
 const cors = require('cors');
 
@@ -18,11 +19,15 @@ const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 const viewRouter = require('./routes/viewRoutes');
-const { webHookCheckout } = require('./controllers/bookingController');
+const {
+  webHookCheckout,
+  createPaymentCheckout,
+} = require('./controllers/bookingController');
+const { capturePayment, generateAccessToken } = require('./services/paypal');
 
 const app = express();
 
-app.enable('trust proxy');
+// app.enable('trust proxy');
 
 app.set('view engine', 'pug');
 app.set('views', path.join(__dirname, 'views'));
@@ -62,16 +67,10 @@ app.use(
       directives: {
         'default-src': [
           "'self'",
-          'https://js.stripe.com/',
           'https://*.mapbox.com',
-          'ws://localhost:53321/',
+          'ws://localhost:54727/',
         ],
-        'script-src': [
-          "'self'",
-          'https://api.mapbox.com',
-          'https://js.stripe.com/v3/',
-          'blob:',
-        ],
+        'script-src': ["'self'", 'https://api.mapbox.com', 'blob:'],
       },
     },
   }),
@@ -92,9 +91,39 @@ app.use('/api', limiter);
 
 app.post(
   '/webhook-checkout',
-  express.raw({ type: 'application/json' }),
+  // express.raw({ type: 'application/json' }),
+  express.json({ type: 'application/json' }),
   webHookCheckout,
 );
+
+// const endpointSecret = 'whsec_ZpJwvSruknjsUMCEtEaK7HWrii8cce4I';
+// app.post(
+//   '/webhook-checkout',
+//   express.raw({ type: 'application/json' }),
+//   (request, response) => {
+//     const sig = request.headers['stripe-signature'];
+
+//     let event;
+
+//     try {
+//       event = stripe.webhooks.constructEvent(
+//         request.body,
+//         sig,
+//         Buffer.from(endpointSecret),
+//       );
+//     } catch (err) {
+//       response.status(400).send(`Webhook Error: ${err.message}`);
+//     }
+
+//     // Handle the event
+//     if (event.type === 'checkout.session.completed') {
+//       console.log('success');
+//     }
+
+//     // Return a response to acknowledge receipt of the event
+//     response.json({ received: true });
+//   },
+// );
 
 // Body parser
 app.use(express.json({ limit: '10kb' }));
@@ -130,6 +159,7 @@ app.use((req, res, next) => {
 });
 
 //2. ROUTES
+app.get('/completed-order', createPaymentCheckout);
 app.use('/', viewRouter);
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);

@@ -2,7 +2,7 @@ import '@babel/polyfill';
 import { login, logout } from './login';
 import { displayMap } from './mapBox';
 import { updateSettings } from './updateSetting';
-import { bookTour } from './stripe';
+import { bookTour } from './paypal';
 
 const mapBox = document.getElementById('map');
 const loginForm = document.querySelector('.form--login');
@@ -65,9 +65,11 @@ if (updateUserPassword) {
 }
 
 if (bookTourBtn) {
-  bookTourBtn.addEventListener('click', (e) => {
+  bookTourBtn.addEventListener('click', async (e) => {
     e.target.textContent = 'Processing...';
     const { tourId } = e.target.dataset;
     bookTour(tourId);
+    // const url = await createOrder(tourId);
+    // window.location.replace(url);
   });
 }
